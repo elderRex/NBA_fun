@@ -3,10 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <title>Performance Visualization</title>
+    <style>
+        body{
+            width:100%;
+            height:100%;
+            background-color:#050031;
+        }
+        canvas{
+            width: 60%;
+            height: 70%;
+            top:30%;
+            background-color:whitesmoke;
+        }
+        div#select_options{
+            margin-left:70%;
+            margin-top:-25%;
+            width: 300px;
+            height:100px;
+        }
+        select{
+            font-size:50px;
+        }
+    </style>
 </head>
 <body>
-
-    <form action="perf_vis/query_in" method="POST">
+    <div id="mycanvas">
+        <canvas id="chart">
+    </div>
+    <div id="select_options">
+        <form action="/perf_vis/query_in" method="POST">
             <select name="team">
                 <option>Atlanta Hawks</option>
                 <option>Charlotte Hornets</option>
@@ -34,6 +59,7 @@
             </select>
             <input type="submit" name="perf_query_in" value="Submit">
     </form>
+    </div>
 
     <p>below are the t_player_data</p>
     <ul>

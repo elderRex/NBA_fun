@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NBA FUN Interactive Explorer</title>
+</head>
+    <body>
+
+        <h1>Hello, Users</h1>
+        <img src="cover.jpg" style="width: 100%; height: 50%;">
+        <p>below are the data</p>
+        <ul>
+        {% for n in my_data %}
+        <li>{{n}}</li>
+        {% endfor %}
+        </ul>
+        <form action="tquery" method="POST">
+            <input type="text" name="table">
+            <input type="submit" name="my-form" value="Send">
+        </form>
+
+        <form action="perf_vis" method="POST">
+            <input type="submit" name="perf_vis_jumper" value="Performance Visualization">
+        </form>
+
+    </body>
+</html>

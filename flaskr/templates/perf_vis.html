@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Performance Visualization</title>
+</head>
+<body>
+
+    <form action="perf_vis/query_in" method="POST">
+            <select name="team">
+                <option>Atlanta Hawks</option>
+                <option>Charlotte Hornets</option>
+                <option>Chicago Bulls</option>
+                <option>Dallas Mavericks</option>
+                <option>Golden State Warriors</option>
+                <option>Houston Rockets</option>
+                <option>Miami Heat</option>
+                <option>Los Angeles Lakers</option>
+                <option>Orlando Magic</option>
+                <option>Phoenix Suns</option>
+            </select>
+            <select name="player">
+                {% for n in t_player_data %}
+                <option>{{n}}</option>
+                {% endfor %}
+            </select>
+            <select name="X-Axis">
+                <option>Miami</option>
+                <option>Texas</option>
+            </select>
+            <select name="Y-Axis">
+                <option>Miami</option>
+                <option>Texas</option>
+            </select>
+            <input type="submit" name="perf_query_in" value="Submit">
+    </form>
+
+    <p>below are the t_player_data</p>
+    <ul>
+        {% for n in query_data %}
+        <li>{{n}}</li>
+        {% endfor %}
+    </ul>
+
+</body>
+</html>

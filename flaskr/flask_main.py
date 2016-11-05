@@ -6,7 +6,7 @@ from flask import Flask, request, render_template, g, redirect, Response,url_for
 import security_check as sc
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
-app = Flask(__name__, template_folder=tmpl_dir)
+app = Flask(__name__, template_folder=tmpl_dir,static_url_path='')
 app.config['UPLOAD_FOLDER'] = sc.UPLOAD_FOLDER
 
 DATABASEURI = "postgresql://yg2466:Asdfgh12345!@w4111vm.eastus.cloudapp.azure.com/w4111"
@@ -33,32 +33,65 @@ def before_request():
 def my_dba_add():
     return redirect(url_for('.index'))
 
-@app.route('/perf_vis',methods=['POST'])
+@app.route('/perf_vis')
 def myperf_vis():
-    return render_template('perf_vis.html')
+    return render_template('perf_vis.html',cteam='Choose Team',X='Choose X',Y='Choose Y')
 
 @app.route('/perf_vis/query_in',methods=['POST'])
 def perf_vis_query():
-    team = request.form.get('team')
+    nteam = request.form.get('team')
     player = request.form.get('player')
-    location = request.form.get('location')
-    print team + " " + player + " " + location
-    team = sc.parse_team(team)
+    #location = request.form.get('location')
+    print nteam
+    print player
+    #print location
+    team = sc.parse_team(nteam)
+    perf_resultsX = []
+    perf_resultsY = []
+    results = []
+    X_axis=[]
+    Y_axis=[]
 
     if team == 'error':
-        print "Error: Team Not Found"
-        return render_template(url_for('.index'))
+        print "Error: Team Not Found. Using default: Miami Heat"
+        team = 'MIA'
+    if player == "Choose Player" :#display performance of team using default X and Y if not given
+        print request.form.get('X-Axis')
+        X_axis = sc.secure_axis(request.form.get('X-Axis'))
+        Y_axis = sc.secure_axis(request.form.get('Y-Axis'))
+        query_string = "SELECT E.ssn As pssn, E.name AS pname, P.age, E.salary, T.tid " \
+                       "FROM Pay_Born_Emp As E JOIN Player As P Using(ssn), from_Team As T, Performance PE " \
+                       "WHERE PE.ssn = P.ssn and E.tid = T.tid and T.tid = '" + team + "';"
+        cursor = g.conn.execute(query_string)
+        for result in cursor:
+            results.append(result['pname'])  # can also be accessed using result[0]
+            p_query_string = "SELECT PE.ssn As pssn, PE." + X_axis + " AS px, PE." + Y_axis + " AS py " \
+                            "FROM Performance PE " \
+                            "WHERE PE.ssn = '"+result['pssn']+"' and season = '16-17';"
+            cursortwo = g.conn.execute(p_query_string)
+            for resulttwo in cursortwo:
+                print resulttwo
+                perf_resultsX.append(resulttwo['px'])
+                perf_resultsY.append(resulttwo['py'])
+        cursor.close()
+        print results
+    else:#display performance of particular player - on top of team info and make it biiiiiG!!
+        X_axis = request.form.get('X-Axis')
+        Y_axis = request.form.get('Y-Axis')
+        if X_axis == Y_axis:
+            print "meaningless query"
+        p_query_string = "SELECT E.ssn As pssn, E.name as pname, PE."+X_axis+" AS px, PE."+Y_axis+" AS py " \
+                       "FROM Pay_Born_Emp As E JOIN Player As P Using(ssn), Performance PE " \
+                       "WHERE PE.ssn = P.ssn and season = '16-17' and E.name = '"+player+"';"
+        cursor = g.conn.execute(p_query_string)
+        for result in cursor:
+            print result
+            results.append(result['pname'])
+            perf_resultsX.append(result['px'])  # can also be accessed using result[0]
+            perf_resultsY.append(result['py'])
+        cursor.close()
 
-    query_string = "SELECT E.ssn As pssn, E.name AS pname, P.age, E.salary, T.tid " \
-                   "FROM Pay_Born_Emp As E JOIN Player As P Using(ssn), from_Team As T, Performance PE " \
-                   "WHERE PE.ssn = P.ssn and E.tid = T.tid and T.tid = '" + team + "';"
-    cursor = g.conn.execute(query_string)
-    results = []
-    for result in cursor:
-        results.append(result['pname'])  # can also be accessed using result[0]
-    cursor.close()
-    print results
-    return render_template('perf_vis.html',t_player_data = results)
+    return render_template('perf_vis.html',cteam=nteam,cplayer=player,t_player_data = results,pX=perf_resultsX,pY=perf_resultsY,X=X_axis,Y=Y_axis)
 
 @app.route('/tquery', methods=['GET', 'POST'])
 def my_query():
@@ -66,14 +99,30 @@ def my_query():
     if request.method == 'POST':
         mytable =  request.form['table']
         print mytable
-        cursor = g.conn.execute("SELECT * FROM " + mytable)
+        cursor = g.conn.execute("SELECT ssn FROM player")
         names = []
         for result in cursor:
-            names.append(result['name'])  # can also be accessed using result[0]
+            names.append(result['ssn'])  # can also be accessed using result[0]
         cursor.close()
         print names
 
-    return render_template('vis_main.html', my_data=names)
+    return render_template('/visualization/vis_main.html', my_data=names)
+
+@app.route('/company_sponsor')
+def company_sponsor_foo():
+    render_template('company_sponsor.html')
+
+@app.route('/player_info')
+def player_info_foo():
+    render_template('player_info.html')
+
+@app.route('Game_visualization')
+def Game_visualization_foo():
+    render_template('Game_visualization.html')
+
+@app.route('player_analysis')
+def player_analysis_foo():
+    render_template('player_analysis.html')
 
 @app.route("/vis_main.html")
 def vis_main_foo():

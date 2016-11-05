@@ -19,8 +19,8 @@ def secure(mystr):
     return mystr
 
 def parse_team(team):
-    if team == 'Miami Heat':
-        return 'MIA'
+    if team == 'Atlanta Hawks':
+        return 'ATL'
     elif team == 'Charlotte Hornets':
         return 'CHA'
     elif team == 'Chicago Bulls':

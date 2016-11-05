@@ -110,19 +110,58 @@ def my_query():
 
 @app.route('/company_sponsor')
 def company_sponsor_foo():
-    render_template('company_sponsor.html')
+    query = "select c.name cname, t.name tname "\
+            "from from_Team t,company c, sponsor s "\
+            "where s.cid=c.cid and s.tid=t.tid;"
+    cursor = g.conn.execute(query)
+    results = []
+    for result in cursor:
+        print result
+        results.append(result)  # can also be accessed using result[0]
+    cursor.close()
+    return render_template('company_sponsor.html',fdata=results)
 
 @app.route('/player_info')
 def player_info_foo():
-    render_template('player_info.html')
+    query = "select p.name,l.state, l.city "\
+            "from location l, Pay_Born_Emp p "\
+            "where p.lid=l.lid;"
+    cursor = g.conn.execute(query)
+    results = []
+    for result in cursor:
+        print result
+        results.append(result)  # can also be accessed using result[0]
+    cursor.close()
+    return render_template('player_info.html',fdata=results)
 
-@app.route('Game_visualization')
+@app.route('/Game_visualization')
+#app_url_rule('/','Game_visualization',Game_visualization_foo)
 def Game_visualization_foo():
-    render_template('Game_visualization.html')
 
-@app.route('player_analysis')
+    query="select g.gid,g.guest_team,g.host_team,l.state,l.city,l.stadium "\
+          "from  Location l, Game_at g "\
+          "where g.lid=l.lid;"
+    cursor = g.conn.execute(query)
+    results = []
+    for result in cursor:
+        print result
+        results.append(result)  # can also be accessed using result[0]
+    cursor.close()
+
+    return render_template('Game_visualization.html',fdata=results)
+
+@app.route('/player_analysis')
 def player_analysis_foo():
-    render_template('player_analysis.html')
+    query="select b.name,b.salary,p.points, p. assists, p.rebounds,p.three_points "\
+          "from Pay_Born_Emp b, Performance p "\
+          "where b.ssn=p.ssn;"
+    cursor = g.conn.execute(query)
+    results = []
+    for result in cursor:
+        print result
+        results.append(result)  # can also be accessed using result[0]
+    cursor.close()
+    return render_template('player_analysis.html',fdata=results)
 
 @app.route("/vis_main.html")
 def vis_main_foo():
